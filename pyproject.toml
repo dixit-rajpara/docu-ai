@@ -10,6 +10,10 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "pydantic>=2.11.3",
     "pydantic-ai>=0.0.53",
+    "pydantic-settings>=2.8.1",
     "python-dotenv>=1.1.0",
     "requests>=2.32.3",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
