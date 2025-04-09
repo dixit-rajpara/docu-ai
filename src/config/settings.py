@@ -1,6 +1,7 @@
 """Application settings and configuration.
 
-This module contains all the configuration settings for the application using pydantic-settings.
+This module contains all the configuration settings for the application
+using pydantic-settings.
 It reads configuration from environment variables and .env files.
 """
 
@@ -20,16 +21,20 @@ class CoreSettings(BaseSettings):
     )
 
 
-class CrawlerSettings(BaseSettings):
-    """Crawler API configuration."""
+class ScraperSettings(BaseSettings):
+    """Scraper API configuration."""
 
     provider: str
     api_host: HttpUrl
-    api_key: SecretStr
+    api_key: SecretStr = None
+    polling_interval: float = 2.0
+    request_timeout: float = 60.0
+    default_job_timeout: float = 300.0
+    max_concurrent_jobs_override: int = 10
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_prefix="crawler_",
+        env_prefix="scraper_",
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -69,7 +74,7 @@ class Settings(BaseModel):
 
     core: CoreSettings = CoreSettings()
     database: DataBaseSettings = DataBaseSettings()
-    crawler: CrawlerSettings = CrawlerSettings()
+    scraper: ScraperSettings = ScraperSettings()
 
 
 settings = Settings()
