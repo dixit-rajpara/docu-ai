@@ -263,9 +263,9 @@ class AsyncCrawl4AIClient(ScraperInterface):  # Inherit from the interface
         logger.debug("Waiting for semaphore slot...")
         await self._semaphore.acquire()
         acquired_semaphore = True  # Flag to track if we acquired it
+        busy_slots = self._semaphore_limit - self._semaphore._value
         logger.debug(
-            "Semaphore acquired. Current busy: "
-            f"{self._semaphore._value + 1}/{self._semaphore_limit}"
+            f"Semaphore acquired. Current busy: {busy_slots}/{self._semaphore_limit}"
         )
 
         try:
@@ -380,9 +380,10 @@ class AsyncCrawl4AIClient(ScraperInterface):  # Inherit from the interface
             # --- Crucial: Release semaphore regardless of outcome ---
             if self._semaphore:
                 self._semaphore.release()
+                busy_slots = self._semaphore_limit - self._semaphore._value
                 logger.debug(
                     f"Semaphore released for job {job_id}. Current busy: "
-                    f"{self._semaphore._value}/{self._semaphore_limit}"
+                    f"{busy_slots}/{self._semaphore_limit}"
                 )
 
     async def scrape_and_wait(
@@ -518,9 +519,10 @@ class AsyncCrawl4AIClient(ScraperInterface):  # Inherit from the interface
             # Release semaphore regardless of outcome
             if self._semaphore:
                 self._semaphore.release()
+                busy_slots = self._semaphore_limit - self._semaphore._value
                 logger.debug(
                     f"Semaphore released for job {job_id}. Current busy: "
-                    f"{self._semaphore._value}/{self._semaphore_limit}"
+                    f"{busy_slots}/{self._semaphore_limit}"
                 )
             # If an exception occurred and we have status data, return it?
             # No, exception should propagate.
