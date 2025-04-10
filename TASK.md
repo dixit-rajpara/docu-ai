@@ -24,9 +24,12 @@
 ### 3. Web Scraper Module
 - [x] Create basic scraper module structure
 - [x] Set up initial test framework for scraper
-- [ ] Input: Framework docs base URL
-- [ ] Output: List of (URL, cleaned HTML/text) pairs
-- [ ] Add crawling limits, deduplication, retries
+- [x] Input: Framework docs base URL
+- [x] Output: List of (URL, cleaned HTML/text) pairs
+- [x] Add crawling limits, deduplication, retries
+- [x] Implement Crawl4AI client with rate limiting
+- [x] Add sitemap discovery and parsing
+- [x] Add link crawling capabilities
 
 ### 4. Text Cleaner Module
 - [ ] Strip unwanted HTML tags
@@ -51,13 +54,25 @@
 
 ### 7. PostgreSQL with pgvector
 - [x] Initial database module setup
-- [ ] Create schema: `documents`, `chunks`, `vectors`
-- [ ] Enable extension: `CREATE EXTENSION vector;`
-- [ ] Write script to insert metadata + embeddings
+- [x] Create schema: `documents`, `chunks`, `vectors`
+- [x] Enable extension: `CREATE EXTENSION vector;`
+- [x] Write script to insert metadata + embeddings
+- [x] Implement async SQLAlchemy models
+- [x] Add proper indexing and constraints
+- [x] Implement bulk document chunk insertion
+- [x] Add HNSW indexing for vector similarity search
+- [x] Set up Alembic migrations
+- [x] Create initial migration script
+- [ ] Add database health check endpoint
+- [ ] Add monitoring for query performance
 
 ### 8. Similarity Search
-- [ ] SQL query for top-k similar vectors
-- [ ] Add filtering support (by doc/meta)
+- [x] SQL query for top-k similar vectors
+- [x] Add filtering support (by doc/meta)
+- [x] Implement cosine similarity search
+- [ ] Add support for other distance metrics (L2, inner product)
+- [ ] Implement caching for frequent queries
+- [ ] Add pagination support for search results
 
 ---
 
@@ -90,8 +105,8 @@
 
 ### 13. Logging/Error Handling
 - [x] Set up logging directory and basic configuration
-- [ ] Add structured logging across all modules
-- [ ] Add try/except error handling across modules
+- [x] Add structured logging across all modules
+- [x] Add try/except error handling across modules
 - [ ] Add error reporting and monitoring
 
 ### 14. Documentation
@@ -101,7 +116,15 @@
 - [ ] Add deployment guide
 
 ### Discovered During Work
-- [ ] Add rate limiting for web scraping
+- [x] Add rate limiting for web scraping
 - [ ] Implement caching mechanism for scraped content
 - [ ] Add support for multiple embedding providers
-- [ ] Create database migration system
+- [x] Create database migration system using Alembic
+- [ ] Add database health check endpoint
+- [ ] Create database backup/restore scripts
+- [ ] Add monitoring for query performance
+- [ ] Implement rate limiting for vector searches
+- [ ] Add support for batch vector operations
+- [ ] Add migration testing to CI/CD pipeline
+- [ ] Create database seeding scripts
+- [ ] Add migration rollback procedures

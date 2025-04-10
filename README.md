@@ -2,33 +2,56 @@
 
 A powerful documentation scraping and search system that uses vector embeddings to enable semantic search capabilities across framework documentation.
 
-## 🌟 Features
-
-- 🕷️ **Web Scraping**: Efficiently crawls and extracts content from framework documentation
+## 🕷️ **Advanced Web Scraping**: 
+  - Rate-limited crawling with Crawl4AI
+  - Sitemap-based discovery
+  - Link crawling with deduplication
+  - Support for JavaScript-rendered content
+  - Concurrent scraping with proper throttling
 - 🧹 **Text Processing**: Cleans and normalizes HTML content while preserving semantic structure
 - 🧩 **Smart Chunking**: Splits documentation into meaningful, context-aware chunks
 - 🧠 **Vector Embeddings**: Generates embeddings using state-of-the-art models
 - 🗄️ **Vector Database**: Stores and indexes embeddings for fast similarity search
 - 🔌 **MCP Integration**: Seamless integration with MCP server for documentation search
 - 📊 **CLI Interface**: Enables easy local testing and usage
+- 📝 **Structured Logging**: Comprehensive logging system with error tracking
+
+## 🗄️ Vector DB Integration
+
+The project uses PostgreSQL with pgvector for efficient vector storage and similarity search:
+
+- **Schema Design**:
+  - `data_sources`: Tracks documentation sources and processing status
+  - `documents`: Stores individual documentation pages/files
+  - `document_chunks`: Contains text chunks with vector embeddings
+- **Features**:
+  - HNSW indexing for fast similarity search
+  - Cosine similarity distance metrics
+  - Bulk document chunk insertion
+  - Async SQLAlchemy ORM with type hints
+  - JSONB metadata support
+  - Cascading deletes
+  - Proper indexing on frequently queried fields
 
 ## 🛠️ Technology Stack
 
 - **Language**: Python 3.11+
 - **Package Management**: uv (Modern Python package installer)
-- **Web Scraping**: BeautifulSoup4, Requests
-- **Vector Embeddings**: OpenAI/HuggingFace
-- **Database**: PostgreSQL with pgvector
-- **Testing**: Pytest
-- **Containerization**: Docker
+- **Web Scraping**: Crawl4AI with rate limiting
+- **Vector Embeddings**: OpenAI/HuggingFace (planned)
+- **Database**: PostgreSQL 15+ with pgvector extension
+- **ORM**: SQLAlchemy 2.0 with async support
+- **Migrations**: Alembic with async and pgvector support
+- **Testing**: Pytest with comprehensive test suite
+- **Containerization**: Docker (planned)
 - **Configuration**: python-dotenv
-- **Logging**: Built-in Python logging with structured output
+- **Logging**: Structured logging with custom handlers
 
 ## 📋 Prerequisites
 
 - Python 3.11 or higher
-- PostgreSQL with pgvector extension
-- Docker (optional)
+- PostgreSQL 15+ with pgvector extension installed
+- Docker (optional, for containerized deployment)
 - OpenAI API key (or alternative embedding provider)
 - uv package installer (recommended)
 
@@ -62,7 +85,17 @@ A powerful documentation scraping and search system that uses vector embeddings 
    # Edit .env with your configuration
    ```
 
-5. Run the CLI:
+5. Initialize the database:
+   ```bash
+   # Create database and enable pgvector extension
+   psql -U postgres -c "CREATE DATABASE docuai;"
+   psql -U postgres -d docuai -c "CREATE EXTENSION vector;"
+   
+   # Run database migrations
+   uv run alembic upgrade head
+   ```
+
+6. Run the CLI:
    ```bash
    python -m src.cli.main
    ```
@@ -72,16 +105,27 @@ A powerful documentation scraping and search system that uses vector embeddings 
 ```
 docu_ai/
 ├── src/
-│   ├── scraper/     # Web scraping and HTML processing
-│   ├── db/          # Database operations and vector storage
-│   ├── cli/         # Command-line interface
-│   ├── config/      # Configuration management
-│   └── main.py      # Application entry point
-├── tests/           # Test suites mirroring src structure
-├── docker/          # Docker configuration files
-├── docs/           # Additional documentation
-├── logs/           # Application logs
-└── .env.sample     # Environment variables template
+│   ├── scraper/          # Web scraping and HTML processing
+│   │   ├── interface.py  # Scraper interface definition
+│   │   ├── crawl4ai_client.py  # Main scraper implementation
+│   │   ├── discovery.py  # URL discovery
+│   │   ├── sitemap_finder.py  # Sitemap parsing
+│   │   ├── link_crawler.py  # Link extraction
+│   │   ├── factory.py    # Scraper factory
+│   │   └── utils.py      # Shared utilities
+│   ├── db/              # Database operations and vector storage
+│   ├── cli/             # Command-line interface
+│   ├── config/          # Configuration management
+│   └── main.py          # Application entry point
+├── migrations/         # Database migration scripts
+│   ├── versions/      # Migration version files
+│   └── env.py        # Migration environment config
+├── tests/             # Test suites mirroring src structure
+├── docker/           # Docker configuration files
+├── docs/            # Additional documentation
+├── logs/            # Application logs
+├── alembic.ini      # Alembic configuration
+└── .env.sample      # Environment variables template
 ```
 
 ## 🔧 Configuration
@@ -96,12 +140,21 @@ DB_NAME=docuai
 DB_USER=postgres
 DB_PASSWORD=your_password
 
-# OpenAI Configuration
+# Vector Configuration
+EMBEDDING_DIMENSION=1536  # OpenAI ada-002 default
+HNSW_M=16                # HNSW graph M parameter
+HNSW_EF_CONSTRUCTION=64  # HNSW graph ef_construction parameter
+
+# OpenAI Configuration (for embeddings)
 OPENAI_API_KEY=your_api_key
 
 # Scraping Configuration
-SCRAPE_DELAY=2
-MAX_RETRIES=3
+CRAWL4AI_BASE_URL=http://localhost:11235
+CRAWL4AI_API_TOKEN=your_token
+MAX_CONCURRENT_JOBS=5
+POLLING_INTERVAL=2.0
+REQUEST_TIMEOUT=60.0
+JOB_TIMEOUT=300.0
 ```
 
 ## 🧪 Running Tests
@@ -117,16 +170,19 @@ pytest tests/test_scraper.py
 pytest --cov=src tests/
 ```
 
-## 🐳 Docker Deployment
-
-Coming soon...
-
 ## 📝 Logging
 
-Logs are stored in the `logs/` directory with the following structure:
-- `app.log`: General application logs
-- `error.log`: Error-specific logs
-- `scraper.log`: Scraping-specific logs
+The project uses a structured logging system with the following organization:
+- `logs/app.log`: General application logs
+- `logs/error.log`: Error-specific logs
+- `logs/scraper.log`: Scraping-specific logs with detailed crawling information
+
+Log levels:
+- DEBUG: Detailed debugging information
+- INFO: General operational information
+- WARNING: Warning messages for non-critical issues
+- ERROR: Error messages for critical issues
+- CRITICAL: Critical errors that require immediate attention
 
 ## 🤝 Contributing
 
@@ -142,6 +198,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- Crawl4AI team for the powerful web scraping capabilities
 - OpenAI for embedding models
 - pgvector contributors
 - uv team for the modern Python package installer
