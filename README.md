@@ -59,7 +59,7 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/dixit-rajpara/docu-ai.git
    cd docu_ai
    ```
 
@@ -133,28 +133,30 @@ docu_ai/
 The project uses environment variables for configuration. Copy `.env.sample` to `.env` and configure:
 
 ```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=docuai
-DB_USER=postgres
-DB_PASSWORD=your_password
+# Logging Configuration
+LOG_LEVEL=DEBUG
 
 # Vector Configuration
 EMBEDDING_DIMENSION=1536  # OpenAI ada-002 default
-HNSW_M=16                # HNSW graph M parameter
-HNSW_EF_CONSTRUCTION=64  # HNSW graph ef_construction parameter
 
-# OpenAI Configuration (for embeddings)
-OPENAI_API_KEY=your_api_key
+# Scraper Configuration
+SCRAPER_PROVIDER=crawl4ai
+SCRAPER_API_HOST=http://127.0.0.1:11235
+SCRAPER_API_KEY=your_api_key
+SCRAPER_POLLING_INTERVAL=2.0
+SCRAPER_REQUEST_TIMEOUT=60.0
+SCRAPER_DEFAULT_JOB_TIMEOUT=300.0
+SCRAPER_MAX_CONCURRENT_JOBS_OVERRIDE=10
 
-# Scraping Configuration
-CRAWL4AI_BASE_URL=http://localhost:11235
-CRAWL4AI_API_TOKEN=your_token
-MAX_CONCURRENT_JOBS=5
-POLLING_INTERVAL=2.0
-REQUEST_TIMEOUT=60.0
-JOB_TIMEOUT=300.0
+# Database Configuration
+POSTGRES_HOST=127.0.0.1
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=docu_ai
+POSTGRES_POOL_SIZE=5
+POSTGRES_MAX_OVERFLOW=10
+POSTGRES_ECHO=false  # Set to true for SQL query logging
 ```
 
 ## 🧪 Running Tests
