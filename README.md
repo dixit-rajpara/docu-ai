@@ -49,11 +49,11 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
 
 ## 📋 Prerequisites
 
-- Python 3.11 or higher
+- Python 3.12 or higher
 - PostgreSQL 15+ with pgvector extension installed
 - Docker (optional, for containerized deployment)
 - OpenAI API key (or alternative embedding provider)
-- uv package installer (recommended)
+- uv package installer (required)
 
 ## 🚀 Getting Started
 
@@ -63,29 +63,30 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
    cd docu_ai
    ```
 
-2. Set up the virtual environment:
+2. Install uv package manager:
    ```bash
-   python -m venv .venv
+   python -m pip install uv
+   ```
+
+3. Set up the virtual environment and install dependencies:
+   ```bash
+   uv venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv pip install --requirement pyproject.toml
    ```
 
-3. Install dependencies using uv (recommended):
+4. Install development dependencies (optional):
    ```bash
-   pip install uv
-   uv pip install -r requirements.txt
-   ```
-   Or using pip:
-   ```bash
-   pip install -r requirements.txt
+   uv pip install --requirement pyproject.toml --dependency-group dev
    ```
 
-4. Set up environment variables:
+5. Set up environment variables:
    ```bash
    cp .env.sample .env
    # Edit .env with your configuration
    ```
 
-5. Initialize the database:
+6. Initialize the database:
    ```bash
    # Create database and enable pgvector extension
    psql -U postgres -c "CREATE DATABASE docuai;"
@@ -95,7 +96,7 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
    uv run alembic upgrade head
    ```
 
-6. Run the CLI:
+7. Run the CLI:
    ```bash
    python -m src.cli.main
    ```
@@ -105,28 +106,50 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
 ```
 docu_ai/
 ├── src/
-│   ├── scraper/          # Web scraping and HTML processing
-│   │   ├── interface.py  # Scraper interface definition
-│   │   ├── crawl4ai_client.py  # Main scraper implementation
-│   │   ├── discovery.py  # URL discovery
-│   │   ├── sitemap_finder.py  # Sitemap parsing
-│   │   ├── link_crawler.py  # Link extraction
-│   │   ├── factory.py    # Scraper factory
-│   │   └── utils.py      # Shared utilities
+│   ├── scraper/          # Web scraping implementation
 │   ├── db/              # Database operations and vector storage
 │   ├── cli/             # Command-line interface
 │   ├── config/          # Configuration management
 │   └── main.py          # Application entry point
-├── migrations/         # Database migration scripts
-│   ├── versions/      # Migration version files
-│   └── env.py        # Migration environment config
-├── tests/             # Test suites mirroring src structure
-├── docker/           # Docker configuration files
-├── docs/            # Additional documentation
-├── logs/            # Application logs
-├── alembic.ini      # Alembic configuration
-└── .env.sample      # Environment variables template
+├── migrations/          # Database migration scripts
+│   ├── versions/       # Migration version files
+│   └── env.py         # Migration environment config
+├── tests/              # Test suites mirroring src structure
+├── docs/              # Project documentation
+├── schema/            # JSON schema definitions
+├── data/             # Data storage and caching
+├── logs/             # Application logs
+├── pyproject.toml    # Project dependencies and settings
+├── uv.lock           # Locked dependencies by uv
+├── alembic.ini       # Alembic configuration
+└── .env.sample       # Environment variables template
 ```
+
+## 🔧 Dependencies
+
+The project uses `pyproject.toml` for dependency management with uv. Key dependencies include:
+
+- **Web & API**:
+  - aiohttp: Async HTTP client/server
+  - httpx: Modern HTTP client
+  - mcp[cli]: MCP server framework
+  
+- **Database**:
+  - SQLAlchemy[asyncio]: Async ORM support
+  - asyncpg: Async PostgreSQL driver
+  - pgvector: Vector similarity search
+  - alembic: Database migrations
+  
+- **AI & Processing**:
+  - openai: OpenAI API client
+  - pydantic-ai: AI model validation
+  - beautifulsoup4: HTML parsing
+  - html2text: HTML to text conversion
+
+- **Development**:
+  - pytest: Testing framework
+  - pytest-asyncio: Async test support
+  - pytest-mock: Mocking utilities
 
 ## 🔧 Configuration
 
