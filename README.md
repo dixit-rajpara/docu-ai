@@ -21,17 +21,27 @@ A powerful documentation scraping and search system that uses vector embeddings 
 The project uses PostgreSQL with pgvector for efficient vector storage and similarity search:
 
 - **Schema Design**:
-  - `data_sources`: Tracks documentation sources and processing status
+  - `data_sources`: Tracks documentation sources with metadata and processing status
+    - Primary fields: source_id, name, base_url, identifier, last_processed_at
+    - Metadata storage using JSONB
   - `documents`: Stores individual documentation pages/files
+    - Primary fields: document_id, source_id, url, title, summary, markdown_content
+    - Content tracking: content_hash, last_modified, processed_at
+    - Metadata storage using JSONB
   - `document_chunks`: Contains text chunks with vector embeddings
+    - Primary fields: chunk_id, document_id, chunk_text, chunk_order
+    - Embedding data: embedding (vector), embedding_model, token_count
+    - Additional fields: title, summary, created_at
+    - Metadata storage using JSONB
 - **Features**:
-  - HNSW indexing for fast similarity search
-  - Cosine similarity distance metrics
-  - Bulk document chunk insertion
-  - Async SQLAlchemy ORM with type hints
-  - JSONB metadata support
-  - Cascading deletes
+  - HNSW indexing for fast similarity search (m=16, ef_construction=64)
+  - Cosine similarity distance metrics with vector_cosine_ops
+  - Bulk document chunk insertion with proper cascading
+  - Async SQLAlchemy ORM with comprehensive type hints
+  - JSONB metadata support for flexible data storage
+  - Cascading deletes for referential integrity
   - Proper indexing on frequently queried fields
+  - Full timezone support for all timestamp fields
 
 ## 🛠️ Technology Stack
 
@@ -112,6 +122,11 @@ docu_ai/
 │   ├── ingestion_pipeline/ # Document ingestion pipeline
 │   ├── llm/             # LLM integration components
 │   ├── db/              # Database operations and vector storage
+│   │   ├── models.py    # SQLAlchemy models
+│   │   ├── postgres.py  # PostgreSQL specific operations
+│   │   ├── interface.py # Database interface layer
+│   │   └── session.py   # Session management
+│   ├── mcp_server/      # MCP server integration
 │   ├── config/          # Configuration management
 │   └── __init__.py      # Package initialization
 ├── migrations/          # Database migration scripts
