@@ -5,6 +5,8 @@ using pydantic-settings.
 It reads configuration from environment variables and .env files.
 """
 
+from typing import Optional
+
 from pydantic import PostgresDsn, HttpUrl, SecretStr, BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -78,12 +80,105 @@ class DataBaseSettings(BaseSettings):
         return str(self.database_url)
 
 
+class EmbeddingSettings(BaseSettings):
+    """Settings for embedding generation."""
+
+    provider: str = Field(
+        default="openai",
+        description="Embedding provider ('openai', 'huggingface', etc.)",
+    )
+    # --- OpenAI Specific ---
+    openai_api_key: SecretStr = Field(default=None, description="API key for OpenAI")
+    openai_model: str = Field(
+        default="text-embedding-3-small", description="OpenAI model for embeddings"
+    )
+
+    # --- HuggingFace Specific ---
+    huggingface_model: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2",
+        description="HuggingFace model identifier (local path or HF Hub name)",
+    )
+    # Device can be 'cpu', 'cuda', 'cuda:0', 'mps' (for Apple Silicon), etc.
+    # 'auto' will let sentence-transformers try to pick the best available device.
+    huggingface_device: str = Field(
+        default="auto",
+        description="Device for HuggingFace model ('cpu', 'cuda', 'mps', 'auto')",
+    )
+
+    # --- Ollama Specific ---
+    ollama_host: str = Field(
+        default="http://localhost:11434", description="Host URL for the Ollama server"
+    )
+    ollama_model: str = Field(
+        default="nomic-embed-text",
+        description="Ollama model name for embeddings (must be pulled in Ollama)",
+    )
+
+    # --- General ---
+    # Dimension is critical for DB schema setup, determined by the chosen model.
+    # Keep it explicitly configurable for clarity, but it *must* match the actual
+    # model output.
+    # Defaults common for OpenAI models. Adjust if using different models/providers.
+    dimension: int = Field(
+        default=1536, description="Output dimension of the embedding model"
+    )
+    batch_size: int = Field(
+        default=32, description="Batch size for generating embeddings"
+    )
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="embedding_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+
+class CompletionSettings(BaseSettings):
+    """Settings for LLM text completion/generation."""
+
+    # Default model to use if not specified in the call.
+    # LiteLLM format: "provider/model_name" e.g., "openai/gpt-3.5-turbo", "anthropic/claude-2", "ollama/llama2"
+    # Or just model name if provider can be inferred from env vars (e.g., "gpt-4")
+    model: str = Field(
+        default="ollama/llama3.1", description="Default model for LLM completion"
+    )
+    api_base: Optional[HttpUrl] = Field(
+        default=None,
+        description="Optional LiteLLM API base URL",
+    )
+    temperature: float = Field(
+        default=0.1, description="Default creativity/randomness (0.0-2.0)"
+    )
+    max_tokens: Optional[int] = Field(
+        default=256, description="Default maximum tokens to generate"
+    )
+    timeout: Optional[float] = Field(
+        default=600.0, description="Default request timeout in seconds"
+    )  # LiteLLM default is 600
+
+    # If set, enables LiteLLM proxy features (e.g., http://localhost:4000)
+    # Useful for logging, fallback, caching etc. Set if you run `litellm --proxy`
+    proxy_base_url: Optional[HttpUrl] = Field(
+        default=None, description="Optional LiteLLM proxy base URL"
+    )
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="llm_completion_",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+
 class Settings(BaseModel):
     """Application settings."""
 
     core: CoreSettings = CoreSettings()
     database: DataBaseSettings = DataBaseSettings()
     scraper: ScraperSettings = ScraperSettings()
+    embedding: EmbeddingSettings = EmbeddingSettings()
+    completion: CompletionSettings = CompletionSettings()
 
 
 settings = Settings()
