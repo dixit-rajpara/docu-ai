@@ -82,6 +82,8 @@ class Document(Base):
         Text, nullable=False
     )  # URL or other unique identifier within source
     title: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    markdown_content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     last_modified: Mapped[Optional[datetime.datetime]] = mapped_column(
         TIMESTAMP(timezone=True), nullable=True
     )
@@ -106,15 +108,16 @@ class Document(Base):
     __table_args__ = (
         Index("ix_documents_source_url", "source_id", "url"),
         {
-            "comment": "Represents individual items (pages, files, records) "
-            "retrieved from a data source."
+            "comment": "Represents individual items (pages, files, records) retrieved from a data source, including cleaned content."
         },  # Add table comment if desired
     )
 
     def __repr__(self) -> str:
+        # Truncate URL for representation
+        url_repr = f"{self.url[:50]}..." if len(self.url or "") > 53 else self.url
         return (
-            f"<Document(document_id={self.document_id}, "
-            f"source_id={self.source_id}, url='{self.url[:50]}...')>"
+            f"<Document(id={self.document_id}, source={self.source_id}, "
+            f"title='{self.title}', url='{url_repr}')>"
         )
 
 
@@ -131,6 +134,8 @@ class DocumentChunk(Base):
     )
     chunk_text: Mapped[str] = mapped_column(Text, nullable=False)
     chunk_order: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # Use the Vector type from sqlalchemy-pgvector
     embedding: Mapped[Optional[Vector]] = mapped_column(
         Vector(settings.core.embedding_dimension),  # Use setting here

@@ -5,6 +5,7 @@ from .embedding import (
     AbstractEmbeddingClient,
     create_embedding_client,
     EmbeddingError,
+    calculate_token_count,
     # ... other embedding exports if needed
 )
 
@@ -27,4 +28,5 @@ __all__ = [
     "create_completion_client",
     "CompletionError",
     "LiteLLMCompletionClient",
+    "calculate_token_count",
 ]

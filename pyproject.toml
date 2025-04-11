@@ -25,6 +25,7 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0.40",
     "tiktoken>=0.9.0",
     "torch>=2.6.0",
+    "typer>=0.15.2",
 ]
 
 [dependency-groups]

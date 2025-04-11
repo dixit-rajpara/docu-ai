@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Optional, Tuple
 
 from sqlalchemy import select, delete, update, func
@@ -106,24 +107,25 @@ class PostgresDBRepository(AbstractDBRepository):
         source_id: int,
         url: str,
         title: Optional[str] = None,
-        last_modified: Optional[str] = None,  # Assuming datetime string or object
+        summary: Optional[str] = None,
+        markdown_content: Optional[str] = None,
+        last_modified: Optional[datetime.datetime] = None,  # Use datetime type hint
         content_hash: Optional[str] = None,
-        metadata: Optional[dict] = None,
+        metadata_: Optional[dict] = None,
     ) -> Document:
         """Adds a new document linked to a data source."""
         async with self.session_maker() as session:
             try:
-                # Consider adding logic here to check if document already
-                # exists based on URL/hash
-                # and update instead of inserting if needed.
+                # --- Pass title and summary to the Document constructor ---
                 new_doc = Document(
                     source_id=source_id,
                     url=url,
-                    title=title,
-                    # SQLAlchemy handles datetime conversion if type matches
+                    title=title,  # Pass title here
+                    summary=summary,  # Pass summary here
+                    markdown_content=markdown_content,
                     last_modified=last_modified,
                     content_hash=content_hash,
-                    metadata_=metadata,
+                    metadata_=metadata_,  # Use metadata_ to match model attribute
                 )
                 session.add(new_doc)
                 await session.commit()
@@ -133,8 +135,7 @@ class PostgresDBRepository(AbstractDBRepository):
             except Exception as e:
                 await session.rollback()
                 logger.error(
-                    f"Error adding document with URL '{url}' for "
-                    f"source {source_id}: {e}",
+                    f"Error adding document with URL '{url}' for source {source_id}: {e}",
                     exc_info=True,
                 )
                 raise
@@ -289,6 +290,60 @@ class PostgresDBRepository(AbstractDBRepository):
                 await session.rollback()
                 logger.error(
                     f"Error updating last_processed_at for source_id {source_id}: {e}",
+                    exc_info=True,
+                )
+                raise
+
+    async def delete_chunks_by_document(self, document_id: int) -> int:
+        """Deletes all chunks associated with a given document ID."""
+        async with self.session_maker() as session:
+            try:
+                stmt = delete(DocumentChunk).where(
+                    DocumentChunk.document_id == document_id
+                )
+                result = await session.execute(stmt)
+                await session.commit()
+                deleted_count = result.rowcount
+                logger.info(
+                    f"Deleted {deleted_count} chunks for document_id {document_id}."
+                )
+                return deleted_count
+            except Exception as e:
+                await session.rollback()
+                logger.error(
+                    f"Error deleting chunks for document_id {document_id}: {e}",
+                    exc_info=True,
+                )
+                raise  # Re-raise the exception
+
+    async def update_document_metadata(
+        self, document_id: int, title: Optional[str], summary: Optional[str]
+    ) -> Optional[Document]:
+        """Updates the title and summary for a given document ID."""
+        async with self.session_maker() as session:
+            try:
+                stmt = (
+                    update(Document)
+                    .where(Document.document_id == document_id)
+                    .values(title=title, summary=summary)
+                    .execution_options(synchronize_session=False)
+                    .returning(Document)  # Return the updated document object
+                )
+                result = await session.execute(stmt)
+                await session.commit()
+                updated_doc = result.scalar_one_or_none()
+                if updated_doc:
+                    logger.debug(f"Updated metadata for document_id {document_id}.")
+                else:
+                    logger.warning(
+                        "Attempted to update metadata for non-existent "
+                        f"document_id {document_id}."
+                    )
+                return updated_doc
+            except Exception as e:
+                await session.rollback()
+                logger.error(
+                    f"Error updating metadata for document_id {document_id}: {e}",
                     exc_info=True,
                 )
                 raise

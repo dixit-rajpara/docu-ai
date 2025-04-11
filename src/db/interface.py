@@ -1,4 +1,5 @@
 import abc
+import datetime
 from typing import List, Optional, Tuple
 
 # Re-import models for type hinting
@@ -35,9 +36,11 @@ class AbstractDBRepository(abc.ABC):
         source_id: int,
         url: str,
         title: Optional[str] = None,
-        last_modified: Optional[str] = None,
+        summary: Optional[str] = None,
+        markdown_content: Optional[str] = None,
+        last_modified: Optional[datetime.datetime] = None,  # Ensure datetime type hint
         content_hash: Optional[str] = None,
-        metadata: Optional[dict] = None,
+        metadata_: Optional[dict] = None,
     ) -> Document:
         """Adds a new document linked to a data source."""
         raise NotImplementedError
@@ -82,4 +85,20 @@ class AbstractDBRepository(abc.ABC):
     @abc.abstractmethod
     async def update_data_source_processed_time(self, source_id: int) -> None:
         """Updates the last_processed_at timestamp for a data source."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def delete_chunks_by_document(self, document_id: int) -> int:
+        """Deletes all chunks associated with a given document ID.
+        Returns count deleted.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def update_document_metadata(
+        self, document_id: int, title: Optional[str], summary: Optional[str]
+    ) -> Optional[Document]:
+        """Updates the title and summary for a given document ID.
+        Returns the updated document or None.
+        """
         raise NotImplementedError
