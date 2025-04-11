@@ -18,11 +18,15 @@ def format_chunk_result(chunk: DocumentChunk, score: Optional[float] = None) -> 
     doc_id = chunk.document_id
     chunk_id = chunk.chunk_id
     order = chunk.chunk_order
+    # Access the document's URL, providing a default if document is missing
+    doc_url = chunk.document.url if chunk.document else "[URL Not Available]"
     text_preview = chunk.chunk_text[:200].strip().replace("\n", " ") + "..."
     similarity_str = f" (Similarity: {score:.4f})" if score is not None else ""
     return (
         f"DocID: {doc_id}, ChunkID: {chunk_id}, "
-        f"Order: {order}{similarity_str}\nPreview: {text_preview}\n"
+        f"Order: {order}{similarity_str}\n"
+        f"URL: {doc_url}\n"
+        f"Preview: {text_preview}\n"
     )
 
 
@@ -60,6 +64,7 @@ async def vector_search(
 ) -> CallToolResult:
     """
     Performs vector similarity search over document chunks based on query text.
+    Each result includes the chunk preview and the URL of the parent document.
 
     Args:
         query_text: The natural language query to search for.
@@ -101,12 +106,13 @@ async def vector_search(
                 f"query '{query_text}':\n\n\n---\n".join(formatted_results)
             )
 
-        return CallToolResult(content=[TextContent(text=result_text)])
+        return CallToolResult(content=[TextContent(type="text", text=result_text)])
 
     except EmbeddingError as e:
         logger.error(f"Embedding error during vector_search: {e}", exc_info=True)
         return CallToolResult(
-            isError=True, content=[TextContent(text=f"Error generating embedding: {e}")]
+            isError=True,
+            content=[TextContent(type="text", text=f"Error generating embedding: {e}")],
         )
     except Exception as e:
         logger.exception(
@@ -116,7 +122,8 @@ async def vector_search(
             isError=True,
             content=[
                 TextContent(
-                    text=f"An unexpected error occurred during vector search: {e}"
+                    type="text",
+                    text=f"An unexpected error occurred during vector search: {e}",
                 )
             ],
         )
@@ -155,7 +162,7 @@ async def get_document_by_id(
                 f"Content:\n{content}"
             )
 
-        return CallToolResult(content=[TextContent(text=result_text)])
+        return CallToolResult(content=[TextContent(type="text", text=result_text)])
 
     except Exception as e:
         logger.exception(f"Error during get_document_by_id for ID {document_id}: {e}")
@@ -163,7 +170,8 @@ async def get_document_by_id(
             isError=True,
             content=[
                 TextContent(
-                    text=f"An unexpected error occurred retrieving document {document_id}: {e}"
+                    type="text",
+                    text=f"An unexpected error occurred retrieving document {document_id}: {e}",
                 )
             ],
         )
@@ -191,7 +199,7 @@ async def get_documents_by_url(
                 + "\n---\n".join(formatted_results)
             )
 
-        return CallToolResult(content=[TextContent(text=result_text)])
+        return CallToolResult(content=[TextContent(type="text", text=result_text)])
 
     except Exception as e:
         logger.exception(f"Error during get_documents_by_url for URL {url}: {e}")
@@ -199,7 +207,8 @@ async def get_documents_by_url(
             isError=True,
             content=[
                 TextContent(
-                    text=f"An unexpected error occurred searching for URL {url}: {e}"
+                    type="text",
+                    text=f"An unexpected error occurred searching for URL {url}: {e}",
                 )
             ],
         )
@@ -235,7 +244,7 @@ async def get_document_chunks(
                     f"\n\n(Note: Results limited to the first {limit} chunks)"
                 )
 
-        return CallToolResult(content=[TextContent(text=result_text)])
+        return CallToolResult(content=[TextContent(type="text", text=result_text)])
 
     except Exception as e:
         logger.exception(
@@ -245,7 +254,8 @@ async def get_document_chunks(
             isError=True,
             content=[
                 TextContent(
-                    text=f"An unexpected error occurred retrieving chunks for document {document_id}: {e}"
+                    type="text",
+                    text=f"An unexpected error occurred retrieving chunks for document {document_id}: {e}",
                 )
             ],
         )
@@ -264,14 +274,14 @@ async def list_data_sources(
             result_text = "No data sources found in the system."
         else:
             formatted_results = [
-                f"- ID: {s.source_id}, Name: {s.name} (URL: {s.base_url or 'N/A'})"
+                f"- ID: {s.source_id}, Name: {s.name}, URL: {s.base_url or '[N/A]'}"
                 for s in sources
             ]
             result_text = f"Found {len(sources)} data source(s):\n" + "\n".join(
                 formatted_results
             )
 
-        return CallToolResult(content=[TextContent(text=result_text)])
+        return CallToolResult(content=[TextContent(type="text", text=result_text)])
 
     except Exception as e:
         logger.exception(f"Error during list_data_sources: {e}")
@@ -279,7 +289,8 @@ async def list_data_sources(
             isError=True,
             content=[
                 TextContent(
-                    text=f"An unexpected error occurred listing data sources: {e}"
+                    type="text",
+                    text=f"An unexpected error occurred listing data sources: {e}",
                 )
             ],
         )
