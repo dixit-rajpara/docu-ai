@@ -1,0 +1,10 @@
+services:
+  docu_ai_mcp_server:
+    # Build the image from the Dockerfile in the current directory (.)
+    build: .
+    container_name: docu_ai_mcp_server
+    # restart: unless-stopped
+    env_file:
+      - .env
+    tty: true          # Allocate a pseudo-TTY
+    stdin_open: true   # Keep STDIN open even if not attached

@@ -7,7 +7,7 @@ It reads configuration from environment variables and .env files.
 
 from typing import Optional
 
-from pydantic import PostgresDsn, HttpUrl, SecretStr, BaseModel, Field
+from pydantic import PostgresDsn, HttpUrl, SecretStr, BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -169,6 +169,15 @@ class CompletionSettings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @field_validator("api_base", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v):
+        # If input from env/dotenv is '', convert it to None before further validation
+        if v == "":
+            return None
+        # If it's already None or a valid string, pass it through
+        return v
 
 
 class Settings(BaseModel):

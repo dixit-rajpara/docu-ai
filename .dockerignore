@@ -1,0 +1,50 @@
+# .dockerignore
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Python virtual environment
+.venv
+venv
+
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+
+# IDE folders
+.vscode
+.idea
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and local data
+logs/
+*.log
+data/
+
+# Environment files (NEVER include .env in the image)
+.env
+.env.*
+*.env
+
+# Test artifacts
+.pytest_cache
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Other local config/files
+local_settings.py

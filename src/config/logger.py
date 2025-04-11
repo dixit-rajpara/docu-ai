@@ -32,13 +32,13 @@ def get_logging_config() -> Dict[str, Any]:
             },
         },
         "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "formatter": "standard",
-                "level": "DEBUG",  # Handler level should be low to allow messages through
-                # Logger level controls what gets passed TO the handler
-                "stream": "ext://sys.stdout",  # Explicitly send to stdout
-            },
+            # "console": {
+            #     "class": "logging.StreamHandler",
+            #     "formatter": "standard",
+            #     "level": "DEBUG",  # Handler level should be low to allow messages through
+            #     # Logger level controls what gets passed TO the handler
+            #     "stream": "ext://sys.stdout",  # Explicitly send to stdout
+            # },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
                 "filename": "logs/app.log",
@@ -54,76 +54,76 @@ def get_logging_config() -> Dict[str, Any]:
             # Set its level high if you want unconfigured libs to be quiet by default.
             # Or set it to app_log_level if you want them to inherit that level.
             "": {
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,  # Default for unconfigured libraries
                 "propagate": False,  # Root logger shouldn't propagate
             },
             # --- Your Application Logger ---
             # Logs from get_logger("src...") or get_logger("ingestion_pipeline...") etc.
             "src": {
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": app_log_level,  # Use level from settings
                 "propagate": False,  # Don't pass src logs to root
             },
             "ingestion_pipeline": {  # Add specific top-level dirs if needed
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": app_log_level,
                 "propagate": False,
             },
             "db": {  # Example for database module
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": app_log_level,
                 "propagate": False,
             },
             "llm": {  # Example for llm module
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": app_log_level,
                 "propagate": False,
             },
             # --- External Library Loggers ---
             # Set levels higher (e.g., WARNING) to reduce noise
             "litellm": {
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "LiteLLM": {  # Some libraries might use different capitalization
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "httpx": {
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "httpcore": {
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "openai": {  # If using openai library directly elsewhere
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "asyncio": {  # Often noisy at DEBUG level
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "uvicorn": {  # If you use uvicorn later
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,
                 "propagate": False,
             },
             "sqlalchemy": {  # Control SQLAlchemy noise (esp. engine)
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,  # Or WARNING
                 "propagate": False,
             },
             "alembic": {  # Control Alembic noise
-                "handlers": ["console", "file"],
+                "handlers": ["file"],
                 "level": library_log_level,  # Or WARNING
                 "propagate": False,
             },

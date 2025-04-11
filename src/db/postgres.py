@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Optional, Tuple
 
-from sqlalchemy import select, delete, update, func
+from sqlalchemy import select, delete, update, func, asc
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import (
     selectinload,
@@ -347,3 +347,52 @@ class PostgresDBRepository(AbstractDBRepository):
                     exc_info=True,
                 )
                 raise
+
+    async def get_document_by_id(self, document_id: int) -> Optional[Document]:
+        """Retrieves a single document by its primary key, eager loading source."""
+        async with self.session_maker() as session:
+            stmt = (
+                select(Document)
+                .where(Document.document_id == document_id)
+                .options(selectinload(Document.source))  # Eager load source info
+            )
+            result = await session.execute(stmt)
+            return result.scalar_one_or_none()
+
+    async def get_documents_by_url(self, url: str) -> List[Document]:
+        """Retrieves all documents matching a specific URL, eager loading source."""
+        # Note: This query might be slow without an index on the 'url' column.
+        # Consider adding: CREATE INDEX ix_documents_url ON documents(url);
+        async with self.session_maker() as session:
+            stmt = (
+                select(Document)
+                .where(Document.url == url)
+                .options(selectinload(Document.source))  # Eager load source info
+            )
+            result = await session.execute(stmt)
+            return list(result.scalars().all())  # Use scalars().all()
+
+    async def get_chunks_by_document_id(
+        self, document_id: int, limit: Optional[int] = None
+    ) -> List[DocumentChunk]:
+        """Retrieves chunks associated with a given document ID,
+        ordered by chunk_order.
+        """
+        async with self.session_maker() as session:
+            stmt = (
+                select(DocumentChunk)
+                .where(DocumentChunk.document_id == document_id)
+                .order_by(asc(DocumentChunk.chunk_order))  # Order chunks correctly
+            )
+            if limit:
+                stmt = stmt.limit(limit)
+
+            result = await session.execute(stmt)
+            return list(result.scalars().all())  # Use scalars().all()
+
+    async def list_data_sources(self) -> List[DataSource]:
+        """Retrieves a list of all data sources."""
+        async with self.session_maker() as session:
+            stmt = select(DataSource).order_by(DataSource.name)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())

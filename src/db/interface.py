@@ -102,3 +102,27 @@ class AbstractDBRepository(abc.ABC):
         Returns the updated document or None.
         """
         raise NotImplementedError
+
+    @abc.abstractmethod
+    async def get_document_by_id(self, document_id: int) -> Optional[Document]:
+        """Retrieves a single document by its primary key."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def get_documents_by_url(self, url: str) -> List[Document]:
+        """Retrieves all documents matching a specific URL across all sources."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def get_chunks_by_document_id(
+        self, document_id: int, limit: Optional[int] = None
+    ) -> List[DocumentChunk]:
+        """Retrieves chunks associated with a given document ID,
+        ordered by chunk_order.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def list_data_sources(self) -> List[DataSource]:
+        """Retrieves a list of all data sources."""
+        raise NotImplementedError
