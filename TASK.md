@@ -4,10 +4,10 @@
 
 ### 1. Initialize Python Project
 - [x] Set up virtual environment
-- [x] Create `requirements.txt` or `pyproject.toml`
-- [x] Install base dependencies: `requests`, `beautifulsoup4`, `openai`, `langchain`, etc.
+- [x] Create `pyproject.toml` with dependencies
+- [x] Install base dependencies
 - [x] Set up basic project structure with src/ and tests/ directories
-- [x] Create configuration management system
+- [x] Create configuration management system with pydantic-settings
 
 ### 2. Set Up Docker Environment
 - [x] Create docker/ directory structure
@@ -31,22 +31,34 @@
 - [x] Add sitemap discovery and parsing
 - [x] Add link crawling capabilities
 
-### 4. Text Cleaner Module
+### 4. Text Processing Module
+- [x] Create processing module structure
 - [ ] Strip unwanted HTML tags
 - [ ] Normalize whitespace
 - [ ] Preserve heading hierarchy for chunking
+- [ ] Add support for code block preservation
+- [ ] Implement metadata extraction
 
 ---
 
 ## 🧠 Phase 3: Chunking & Embedding
 
 ### 5. Chunking Module
+- [x] Create ingestion pipeline structure
 - [ ] Split docs by heading/semantic boundary
-- [ ] Limit to max token length (e.g., 512 tokens)
+- [ ] Implement token-aware chunking
+- [ ] Add overlap configuration
+- [ ] Preserve metadata in chunks
+- [ ] Add chunk validation
 
 ### 6. Embedding Module
-- [ ] Generate vector embeddings (OpenAI or HuggingFace)
-- [ ] Normalize and store vector representations
+- [x] Set up multiple embedding providers
+- [x] Implement OpenAI embeddings
+- [x] Add SentenceTransformers support
+- [x] Add Ollama integration
+- [ ] Add embedding caching
+- [ ] Implement batch processing
+- [ ] Add fallback mechanisms
 
 ---
 
@@ -70,22 +82,32 @@
 - [x] SQL query for top-k similar vectors
 - [x] Add filtering support (by doc/meta)
 - [x] Implement cosine similarity search
-- [ ] Add support for other distance metrics (L2, inner product)
+- [ ] Add support for other distance metrics
 - [ ] Implement caching for frequent queries
 - [ ] Add pagination support for search results
+- [ ] Add hybrid search capabilities
 
 ---
 
-## 🧰 Phase 5: API Server (MCP)
+## 🧰 Phase 5: LLM Integration
 
-### 9. FastMCP Server
+### 9. LLM Module
+- [x] Set up LLM module structure
+- [x] Implement litellm integration
+- [x] Add OpenAI support
+- [x] Add Ollama integration
+- [ ] Implement response streaming
+- [ ] Add response caching
+- [ ] Implement fallback mechanisms
+- [ ] Add cost tracking
+
+### 10. MCP Server Integration
 - [ ] Set up FastAPI server structure
-- [ ] Implement basic health check endpoints
+- [ ] Implement health check endpoints
 - [ ] Add documentation search endpoints
-
-### 10. (Optional) LLM Response Generation
-- [ ] Use OpenAI or local LLM to synthesize answers
-- [ ] Add response caching mechanism
+- [ ] Add streaming response support
+- [ ] Implement rate limiting
+- [ ] Add authentication/authorization
 
 ---
 
@@ -94,37 +116,38 @@
 ### 11. Testing
 - [x] Set up pytest framework
 - [x] Add initial test cases for scraper module
-- [ ] Add unit tests for each remaining module
+- [x] Add tests for processing module
+- [ ] Add tests for embedding module
+- [ ] Add tests for LLM module
 - [ ] Add integration tests
+- [ ] Add performance tests
 
-### 12. CLI Interface
-- [x] Set up basic CLI structure
-- [ ] Add command for running scraper
-- [ ] Add command for search operations
-- [ ] Add utility commands (db setup, etc.)
-
-### 13. Logging/Error Handling
-- [x] Set up logging directory and basic configuration
-- [x] Add structured logging across all modules
-- [x] Add try/except error handling across modules
-- [ ] Add error reporting and monitoring
-
-### 14. Documentation
+### 12. Documentation
 - [x] Write initial README with setup instructions
 - [ ] Add API documentation
 - [ ] Add developer guide
 - [ ] Add deployment guide
+- [ ] Add architecture diagrams
+- [ ] Document configuration options
+
+### 13. Monitoring & Observability
+- [x] Set up logging directory and configuration
+- [x] Add structured logging across modules
+- [x] Add error handling and reporting
+- [ ] Set up metrics collection
+- [ ] Add performance monitoring
+- [ ] Implement cost tracking
+- [ ] Add usage analytics
 
 ### Discovered During Work
 - [x] Add rate limiting for web scraping
-- [ ] Implement caching mechanism for scraped content
-- [ ] Add support for multiple embedding providers
-- [x] Create database migration system using Alembic
-- [ ] Add database health check endpoint
-- [ ] Create database backup/restore scripts
-- [ ] Add monitoring for query performance
-- [ ] Implement rate limiting for vector searches
-- [ ] Add support for batch vector operations
-- [ ] Add migration testing to CI/CD pipeline
+- [x] Add support for multiple embedding providers
+- [x] Create database migration system
+- [ ] Add database backup/restore scripts
+- [ ] Add migration testing
 - [ ] Create database seeding scripts
-- [ ] Add migration rollback procedures
+- [ ] Add support for batch operations
+- [ ] Implement document versioning
+- [ ] Add support for incremental updates
+- [ ] Implement document expiration
+- [ ] Add support for custom chunking strategies

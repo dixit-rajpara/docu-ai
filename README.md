@@ -35,17 +35,18 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
 
 ## 🛠️ Technology Stack
 
-- **Language**: Python 3.11+
+- **Language**: Python 3.12+
 - **Package Management**: uv (Modern Python package installer)
 - **Web Scraping**: Crawl4AI with rate limiting
-- **Vector Embeddings**: OpenAI/HuggingFace (planned)
+- **Vector Embeddings**: OpenAI, SentenceTransformers, and Ollama (supported)
 - **Database**: PostgreSQL 15+ with pgvector extension
 - **ORM**: SQLAlchemy 2.0 with async support
 - **Migrations**: Alembic with async and pgvector support
 - **Testing**: Pytest with comprehensive test suite
 - **Containerization**: Docker (planned)
-- **Configuration**: python-dotenv
+- **Configuration**: python-dotenv and pydantic-settings
 - **Logging**: Structured logging with custom handlers
+- **LLM Integration**: litellm for multi-provider support
 
 ## 📋 Prerequisites
 
@@ -72,12 +73,12 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
    ```bash
    uv venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   uv pip install --requirement pyproject.toml
+   uv pip install -e .
    ```
 
 4. Install development dependencies (optional):
    ```bash
-   uv pip install --requirement pyproject.toml --dependency-group dev
+   uv pip install --dependency-group dev -e .
    ```
 
 5. Set up environment variables:
@@ -107,10 +108,12 @@ The project uses PostgreSQL with pgvector for efficient vector storage and simil
 docu_ai/
 ├── src/
 │   ├── scraper/          # Web scraping implementation
+│   ├── processing/       # Text processing and chunking
+│   ├── ingestion_pipeline/ # Document ingestion pipeline
+│   ├── llm/             # LLM integration components
 │   ├── db/              # Database operations and vector storage
-│   ├── cli/             # Command-line interface
 │   ├── config/          # Configuration management
-│   └── main.py          # Application entry point
+│   └── __init__.py      # Package initialization
 ├── migrations/          # Database migration scripts
 │   ├── versions/       # Migration version files
 │   └── env.py         # Migration environment config
@@ -142,9 +145,13 @@ The project uses `pyproject.toml` for dependency management with uv. Key depende
   
 - **AI & Processing**:
   - openai: OpenAI API client
+  - litellm: Multi-provider LLM support
+  - ollama: Local LLM integration
+  - sentence-transformers: Local embeddings
   - pydantic-ai: AI model validation
   - beautifulsoup4: HTML parsing
   - html2text: HTML to text conversion
+  - tiktoken: Token counting
 
 - **Development**:
   - pytest: Testing framework
